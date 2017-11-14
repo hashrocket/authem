@@ -1,4 +1,10 @@
-class <%= migration_class_name %> < ActiveRecord::Migration
+<% MIGRATION_BASE = if Rails.version >= '5.0'
+                   ActiveRecord::Migration[5.0]
+                 else
+                   ActiveRecord::Migration
+                 end
+%>
+class <%= migration_class_name %> < <%= MIGRATION_BASE %>
   def change
     create_table :<%= table_name %> do |t|
       t.string :email,                null: false

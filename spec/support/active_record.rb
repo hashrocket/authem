@@ -1,13 +1,19 @@
-require "active_record"
+require 'active_record'
 
 ActiveRecord::Migration.verbose = false
 
 ActiveRecord::Base.establish_connection(
-  adapter:  "sqlite3",
-  database: ":memory:"
+  adapter:  'sqlite3',
+  database: ':memory:'
 )
 
-class CreateUsersMigration < ActiveRecord::Migration
+MIGRATION_BASE = if Rails.version >= '5.0'
+                   ActiveRecord::Migration[5.0]
+                 else
+                   ActiveRecord::Migration
+                 end
+
+class CreateUsersMigration < MIGRATION_BASE
   def up
     create_table :users do |t|
       t.string :email
@@ -17,7 +23,7 @@ class CreateUsersMigration < ActiveRecord::Migration
   end
 end
 
-class CreateSessionsMigration < ActiveRecord::Migration
+class CreateSessionsMigration < MIGRATION_BASE
   def up
     create_table :authem_sessions do |t|
       t.string     :role,       null: false

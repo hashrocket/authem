@@ -3,9 +3,9 @@
 source "https://rubygems.org"
 
 gem "appraisal"
-gem "activerecord", "~> 4.2.0", require: "active_record"
+gem "activerecord", "~> 5.1", require: "active_record"
 gem "bcrypt", "~> 3.1"
-gem "railties", "~> 4.2.0"
+gem "railties", "~> 5.1"
 
 group :test do
   gem "rspec", "~> 3.0"
