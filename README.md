@@ -15,9 +15,9 @@ Authem requires Ruby 1.9.3 or newer
 
 Please see the Authem website for up-to-date documentation: http://authem.org
 
-## Multi Channel Authentication
+## Multi Channel Authentication (MCA)
 
-Multi Channel Authentication, a paradigm proposed by [Dillon
+Multi Channel Authentication (MCA), a paradigm proposed by [Dillon
 Hafer](https://github.com/dillonhafer), adds CSRF protection to Rails APIs
 without the overhead of making two server calls for each API request.
 
@@ -56,6 +56,20 @@ class ApplicationController < ActionController::Base
   authem_for :user, verify_client_auth_token: true
 end
 ```
+
+## Upgrading to 2.2
+
+If you are upgrading from an older version of Authem (< v2.2.0) you need to
+create a migration adding the `client_token` column to your `authem_sessions` table:
+
+```ruby
+def change
+  add_column :authem_sessions, :client_token, null: false
+end
+```
+
+You may want to clear or migrate all existing sessions before running this
+migration.
 
 
 ## Upgrading to 2.0
