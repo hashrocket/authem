@@ -10,6 +10,7 @@ class CreateAuthemSessions < MIGRATION_BASE
       t.string     :role,          null: false
       t.references :subject,       null: false, polymorphic: true
       t.string     :token,         null: false, limit: 60
+      t.string     :client_token,  null: false, limit: 60
       t.datetime   :expires_at,    null: false
       t.integer    :ttl,           null: false
       t.timestamps

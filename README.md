@@ -15,6 +15,49 @@ Authem requires Ruby 1.9.3 or newer
 
 Please see the Authem website for up-to-date documentation: http://authem.org
 
+## Multi Channel Authentication
+
+Multi Channel Authentication, a paradigm proposed by [Dillon
+Hafer](https://github.com/dillonhafer), adds CSRF protection to Rails APIs
+without the overhead of making two server calls for each API request.
+
+The general idea is simple:
+
+1. On sign in the client receives a `client_auth_token` that auth token is then
+   stored on the client (on local storage, never cookies) and transmitted on
+   every request in the HTTP headers (`client-auth-token` header). This is the
+   first authentication channel.
+2. The client also gets a session token stored in a session cookie which is
+   automatically submitted by the browser on every request. This is the second
+   authentication channel.
+2. The server gets both client auth token from the headers and session token
+   from the cookies, and uses both to find the user, if they match an
+   `Authem::Session` in the database record, the `current_user` is set and the
+   user is signed in. Otherwise the user cannot sign in.
+
+To enable Multi Channel Auth in Authem add the following to your code:
+
+
+In `config/initializers/authem.rb`
+
+```ruby
+Authem.configure do |conf|
+  conf.verify_client_auth_token = true
+end
+```
+
+In your `application_controller` or any other base controller add this to your
+`authem_for` call:
+
+```ruby
+class ApplicationController < ActionController::Base
+  # protect_from_forgery with: :exception (you can comment out or delete this line)
+
+  authem_for :user, verify_client_auth_token: true
+end
+```
+
+
 ## Upgrading to 2.0
 
 - Run `bundle update authem` and make sure you are on the 2.0.x release.

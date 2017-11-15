@@ -26,11 +26,12 @@ end
 class CreateSessionsMigration < MIGRATION_BASE
   def up
     create_table :authem_sessions do |t|
-      t.string     :role,       null: false
-      t.references :subject,    null: false, polymorphic: true
-      t.string     :token,      null: false
-      t.datetime   :expires_at, null: false
-      t.integer    :ttl,        null: false
+      t.string     :role,              null: false
+      t.references :subject,           null: false, polymorphic: true
+      t.string     :token,             null: false
+      t.string     :client_token,      null: false
+      t.datetime   :expires_at,        null: false
+      t.integer    :ttl,               null: false
       t.timestamps null: false
     end
   end
