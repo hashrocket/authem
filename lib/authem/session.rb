@@ -1,4 +1,4 @@
-require "active_record"
+require 'active_record'
 
 module Authem
   class Session < ::ActiveRecord::Base
@@ -8,6 +8,7 @@ module Authem
 
     before_create do
       self.token ||= Authem::Token.generate
+      self.client_token ||= Authem::Token.generate
       self.ttl ||= 30.days
       self.expires_at ||= ttl_from_now
     end

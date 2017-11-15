@@ -14,7 +14,8 @@ module Authem
       end
     end
 
-    def sign_in(record, options={})
+    def sign_in(record, options = {})
+      session.delete :_csrf_token if session.respond_to?(:delete)
       check_record! record
       ivar_set record
       auth_session = create_auth_session(record, options)
@@ -29,7 +30,7 @@ module Authem
 
     def sign_out
       ivar_set nil
-      Authem::Session.where(role: role_name, token: current_auth_token).delete_all
+      get_auth_session_by_token(current_auth_token, current_client_auth_token).delete
       cookies.delete key, domain: :all
       session.delete key
     end
@@ -49,28 +50,42 @@ module Authem
 
     def deny_access
       # default landing point for deny_#{role_name}_access
-      fail NotImplementedError, "No strategy for require_#{role_name} defined. Please define `deny_#{role_name}_access` method in your controller"
+      raise NotImplementedError, "No strategy for require_#{role_name} defined. Please define `deny_#{role_name}_access` method in your controller"
     end
 
     private
 
-    delegate :name, to: :role, prefix: true
+    delegate :name, :options, to: :role, prefix: true
 
     def check_record!(record)
-      fail ArgumentError if record.nil?
+      raise ArgumentError if record.nil?
     end
 
     def fetch_subject_by_token
       return if current_auth_token.blank?
-      auth_session = get_auth_session_by_token(current_auth_token)
+      return if current_client_auth_token.blank? && verify_client_auth_token?
+      auth_session = get_auth_session_by_token(current_auth_token, current_client_auth_token)
       return nil unless auth_session
       auth_session.refresh
-      save_cookie auth_session if cookies.signed[key].present?
+      save_cookie auth_session if auth_cookie_present?
       auth_session.subject
+    end
+
+    def auth_cookie_present?
+      cookies.signed[key].present?
     end
 
     def current_auth_token
       session[key] || cookies.signed[key]
+    end
+
+    def verify_client_auth_token?
+      Authem.configuration.verify_client_auth_token &&
+        role_options[:verify_client_auth_token]
+    end
+
+    def current_client_auth_token
+      request.headers['client-auth-token']
     end
 
     def create_auth_session(record, options)
@@ -85,12 +100,20 @@ module Authem
       cookies.signed[key] = {
         value:   auth_session.token,
         expires: auth_session.expires_at,
-        domain:  :all
+        domain:  :all,
+        httponly: true
       }
     end
 
-    def get_auth_session_by_token(token)
-      Authem::Session.active.find_by(role: role_name, token: token)
+    def get_auth_session_by_token(token, client_token)
+      base_params = { role: role_name, token: token }
+      find_by_params = if verify_client_auth_token?
+                         base_params.merge(client_token: client_token)
+                       else
+                         base_params
+                       end
+
+      Authem::Session.active.find_by(find_by_params)
     end
 
     def key
@@ -114,7 +137,7 @@ module Authem
     end
 
     # exposing private controller methods
-    %w[cookies session redirect_to request].each do |method_name|
+    %w(cookies session redirect_to request).each do |method_name|
       define_method method_name do |*args|
         controller.send(method_name, *args)
       end
