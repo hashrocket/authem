@@ -379,6 +379,12 @@ describe Authem::Controller do
         controller.sign_out user
       end.to change(Authem::Session, :count).by(-1)
     end
+
+    it 'does not crash when there is no database session' do
+      expect do
+        controller.sign_out user
+      end.to_not raise_error
+    end
   end
 
   context 'with multiple roles' do

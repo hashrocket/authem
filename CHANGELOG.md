@@ -1,6 +1,7 @@
 ### 3.0.0 ###
 
 * Remove support for Rails < v4.2
+* Fix sign out issue when user is not signed in
 
 ### 2.2.0 ###
 * Support multi channel authentication - see [README](README.md)

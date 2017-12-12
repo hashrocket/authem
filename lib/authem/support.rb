@@ -30,7 +30,7 @@ module Authem
 
     def sign_out
       ivar_set nil
-      get_auth_session_by_token(current_auth_token, current_client_auth_token).delete
+      get_auth_sessions_by_token(current_auth_token, current_client_auth_token).delete_all
       cookies.delete key, domain: :all
       session.delete key
     end
@@ -64,7 +64,7 @@ module Authem
     def fetch_subject_by_token
       return if current_auth_token.blank?
       return if current_client_auth_token.blank? && verify_client_auth_token?
-      auth_session = get_auth_session_by_token(current_auth_token, current_client_auth_token)
+      auth_session = get_auth_sessions_by_token(current_auth_token, current_client_auth_token).first
       return nil unless auth_session
       auth_session.refresh
       save_cookie auth_session if auth_cookie_present?
@@ -105,7 +105,7 @@ module Authem
       }
     end
 
-    def get_auth_session_by_token(token, client_token)
+    def get_auth_sessions_by_token(token, client_token)
       base_params = { role: role_name, token: token }
       find_by_params = if verify_client_auth_token?
                          base_params.merge(client_token: client_token)
@@ -113,7 +113,7 @@ module Authem
                          base_params
                        end
 
-      Authem::Session.active.find_by(find_by_params)
+      Authem::Session.active.where(find_by_params)
     end
 
     def key
