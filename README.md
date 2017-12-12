@@ -6,7 +6,7 @@ Authem is an email-based authentication library for ruby web apps.
 
 ## Compatibility
 
-Authem requires Ruby 1.9.3 or newer
+Authem requires Ruby 1.9.3 or newer, Rails 4.2 and up
 
 [![Build Status](https://secure.travis-ci.org/paulelliott/authem.png)](http://travis-ci.org/paulelliott/authem)
 [![Code Climate](https://codeclimate.com/github/paulelliott/authem.png)](https://codeclimate.com/github/paulelliott/authem)
@@ -86,8 +86,33 @@ migration.
 - Blank email addresses will now produce the proper "can't be blank" validation message". Update your tests accordingly.
 - Email addresses are no longer automatically downcased when calling `find_by_email` on your model. You will need to downcase the value manually if you wish to retain this behavior.
 - Specify what to do when authem denies access to a user by adding something like this to your ApplicationController.
+
 ```
 def deny_user_access
   redirect_to :sign_in
 end
 ```
+
+## Development
+
+To install all gems for each version of Rails supported run:
+
+```sh
+$ bundle exec appraisal install
+```
+
+## Testing
+
+To run tests for all supported Rails versions:
+
+```sh
+$ bundle exec appraisal rake
+```
+
+To run the tests for a specific version:
+
+```sh
+$ bundle exec appraisal rails-5.1 rake
+```
+
+Check the [Appraisals](Appraisals) file for supported versions.
