@@ -2,3 +2,4 @@ pkg
 .ruby-*
 .bundle
 gemfiles/.bundle
+gemfiles/vendor
