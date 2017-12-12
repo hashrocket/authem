@@ -1,3 +1,10 @@
+### 3.0.0 ###
+
+* Remove support for Rails < v4.2
+
+### 2.2.0 ###
+* Support multi channel authentication - see [README](README.md)
+
 ### 2.1.0 ###
 
 * Rails 5 compatibility
